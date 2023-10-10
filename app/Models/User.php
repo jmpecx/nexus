@@ -13,7 +13,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
-use Laravel\Sanctum\HasApiTokens;
+use Laravel\Passport\HasApiTokens;
 use Nexus\Database\NexusDB;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
@@ -111,7 +111,7 @@ class User extends Authenticatable implements FilamentUser, HasName
 
     public static function getClassText($class)
     {
-        if (!is_numeric($class)|| !isset(self::$classes[$class])) {
+        if (!is_numeric($class) || !isset(self::$classes[$class])) {
             return '';
         }
         if ($class >= self::CLASS_VIP) {
@@ -148,9 +148,9 @@ class User extends Authenticatable implements FilamentUser, HasName
     }
 
     /**
+     * @return string
      * @see ExamRepository::isExamMatchUser()
      *
-     * @return string
      */
     public function getDonateStatusAttribute(): string
     {
@@ -163,7 +163,7 @@ class User extends Authenticatable implements FilamentUser, HasName
     /**
      * 为数组 / JSON 序列化准备日期。
      *
-     * @param  \DateTimeInterface  $date
+     * @param \DateTimeInterface $date
      * @return string
      */
     protected function serializeDate(\DateTimeInterface $date): string
@@ -260,10 +260,10 @@ class User extends Authenticatable implements FilamentUser, HasName
         }
         $class_name_color = self::$classes[$class]['text'] ?? '';
         if ($compact) {
-            $class_name = str_replace(" ", "",$class_name);
+            $class_name = str_replace(" ", "", $class_name);
         }
         if ($class_name && $b_colored) {
-            return "<b class='" . str_replace(" ", "",$class_name_color) . "_Name'>" . $class_name . "</b>";
+            return "<b class='" . str_replace(" ", "", $class_name_color) . "_Name'>" . $class_name . "</b>";
         }
         return $class_name;
     }
@@ -367,8 +367,7 @@ class User extends Authenticatable implements FilamentUser, HasName
         return $this->hasMany(Invite::class, 'inviter')
             ->where('invitee', '')
             ->whereNotNull('expired_at')
-            ->where('expired_at', '>=', Carbon::now())
-        ;
+            ->where('expired_at', '>=', Carbon::now());
     }
 
     public function send_messages()
@@ -463,8 +462,7 @@ class User extends Authenticatable implements FilamentUser, HasName
         return $this->belongsToMany(Medal::class, 'user_medals', 'uid', 'medal_id')
             ->withPivot(['id', 'expire_at', 'status', 'priority'])
             ->withTimestamps()
-            ->orderByPivot('priority', 'desc')
-            ;
+            ->orderByPivot('priority', 'desc');
     }
 
     public function valid_medals(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
@@ -572,7 +570,11 @@ class User extends Authenticatable implements FilamentUser, HasName
         return is_null($this->original['notifs']) || str_contains($this->notifs, "[{$name}]");
     }
 
-
+    public function getAuthPassword()
+    {
+        //md5($row["secret"] . $password . $row["secret"])
+        return $this->passhash;
+    }
 
 
 }

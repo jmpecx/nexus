@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Auth\Hashing\Md5Hasher;
+use App\Auth\MyUserProvider;
 use App\Auth\NexusWebGuard;
 use App\Auth\NexusWebUserProvider;
 use App\Models\AudioCodec;
@@ -21,6 +23,7 @@ use App\Policies\CodecPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -46,6 +49,12 @@ class AuthServiceProvider extends ServiceProvider
         Plugin::class => CodecPolicy::class,
     ];
 
+    public function register()
+    {
+        $this->app->singleton('cookie-web-guard', \App\Auth\CookieWebGuard::class);
+
+    }
+
     /**
      * Register any authentication / authorization services.
      *
@@ -55,6 +64,9 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
+        Hash::extend('md5', function () {
+            return new Md5Hasher;
+        });
         Auth::viaRequest('nexus-cookie', function (Request $request) {
             return $this->getUserByCookie($request->cookie());
         });
@@ -63,7 +75,18 @@ class AuthServiceProvider extends ServiceProvider
             // 返回 Illuminate\Contracts\Auth\Guard 的实例 ...
             return new NexusWebGuard($app['request'], new NexusWebUserProvider());
         });
+        // 注册自定义的provider, 需要再 config/auth里配置选中
+        Auth::provider('my-user', function ($app, array $config) {
+            return new MyUserProvider($app['hash'], $config['model']);
+        });
 
+        Auth::extend('cookie-web', function ($app, $name, array $config) {
+            return $app->makeWith('cookie-web-guard', ['name' => $name, 'provider' => Auth::createUserProvider($config['provider'] ?? null)]);
+        });
+        Auth::extend('nexus-web', function ($app, $name, array $config) {
+            // 返回 Illuminate\Contracts\Auth\Guard 的实例 ...
+            return new NexusWebGuard($app['request'], new NexusWebUserProvider());
+        });
         Auth::viaRequest('passkey', function (Request $request) {
             $passkey = $request->passkey;
             if (strlen($passkey) != 32) {
@@ -79,7 +102,7 @@ class AuthServiceProvider extends ServiceProvider
         if (empty($cookie["c_secure_pass"]) || empty($cookie["c_secure_uid"]) || empty($cookie["c_secure_login"])) {
             return null;
         }
-        $b_id = base64($cookie["c_secure_uid"],false);
+        $b_id = base64($cookie["c_secure_uid"], false);
         $id = intval($b_id ?? 0);
         if (!$id || !is_valid_id($id) || strlen($cookie["c_secure_pass"]) != 32) {
             return null;

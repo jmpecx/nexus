@@ -43,10 +43,12 @@
         "imdbphp/imdbphp": "^7.0",
         "laravel/framework": "9.52.4",
         "laravel/octane": "^1.2",
+        "laravel/passport": "^11.9",
         "laravel/sanctum": "^2.10",
         "laravel/tinker": "^2.5",
         "league/flysystem-ftp": "^3.0",
         "league/flysystem-sftp-v3": "^3.0",
+        "league/oauth2-server": "8.5.3",
         "masbug/flysystem-google-drive-ext": "^2.0",
         "meilisearch/meilisearch-php": "^1.0",
         "orangehill/iseed": "^3.0",
@@ -56,15 +58,16 @@
         "spiral/roadrunner": "^2.8"
     },
     "require-dev": {
-        "spatie/laravel-ignition": "^1.0",
         "fakerphp/faker": "^1.9.1",
         "kitloong/laravel-migrations-generator": "^5.0",
-        "laravel/sail": "^1.0.1",
         "laravel-lang/lang": "^10.2",
         "laravel-lang/publisher": "^12.0",
+        "laravel/breeze": "^1.19",
+        "laravel/sail": "^1.0.1",
         "mockery/mockery": "^1.4.2",
         "nunomaduro/collision": "^6.1",
-        "phpunit/phpunit": "^9.3.3"
+        "phpunit/phpunit": "^9.3.3",
+        "spatie/laravel-ignition": "^1.0"
     },
     "autoload-dev": {
         "psr-4": {

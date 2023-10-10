@@ -85,6 +85,7 @@ services:
     volumes:
       - './:/var/www/'
       - './docker/php-fpm/laravel.ini:/usr/local/etc/php/conf.d/laravel.ini'
+      # - './docker/php-fpm/docker-entrypoint.sh:/docker-entrypoint.sh'
     networks:
       - sail
     expose:
