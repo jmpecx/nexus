@@ -145,6 +145,10 @@ class CookieWebGuard extends SessionGuard
     protected function clearUserDataFromStorage()
     {
         logoutcookie();
-        parent::clearUserDataFromStorage();
+        try {
+            parent::clearUserDataFromStorage();
+        } catch (\Exception $exception) {
+            // ignore.
+        }
     }
 }
